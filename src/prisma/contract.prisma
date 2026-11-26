@@ -1,16 +1,16 @@
 // use prisma-8
 
-native_enum SessionType {
+
+
+namespace charge_recup {
+  native_enum SessionType {
   MUSCU     = "MUSCU"
   TRAINING  = "TRAINING"
   COMBO     = "COMBO"
   MATCH     = "MATCH"
   OTHER     = "OTHER"
-
   @@map("session_type")
 }
-
-namespace charge_recup {
   model DailyEntry {
     id         String            @id
     playerName Varchar(40)       @map("player_name")

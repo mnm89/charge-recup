@@ -18,7 +18,7 @@ import type {
 } from '@prisma/orm-postgres/contract-types';
 
 export type StorageHash =
-  StorageHashBase<'264a966bff3f655c5c673b4f0515889fdb0a21f40ce34c542d42deb50ee789ef'>;
+  StorageHashBase<'156c35de7d5ba6bd006b5583bef73b07f2b09905027c89631af3411478a1b2ea'>;
 export type ExecutionHash =
   ExecutionHashBase<'a25a721130cb4dac594a96cd5c51d0e8c21390a913daa775b21a6aeb70f67c16'>;
 export type ProfileHash =
@@ -514,7 +514,7 @@ type ContractBase = Omit<
                   readonly dataType: 'pg/enum';
                   readonly codecId: 'pg/enum@1';
                   readonly nullable: true;
-                  readonly typeParams: { readonly typeName: 'session_type' };
+                  readonly typeParams: { readonly typeName: 'charge_recup.session_type' };
                   readonly many: false;
                 };
               };
@@ -549,13 +549,6 @@ type ContractBase = Omit<
               ];
             };
           };
-        };
-      };
-      readonly public: {
-        readonly id: 'public';
-        readonly kind: 'postgres-schema';
-        readonly entries: {
-          readonly table: {};
           readonly valueSet: {
             readonly SessionType: {
               readonly kind: 'valueSet';
@@ -563,6 +556,11 @@ type ContractBase = Omit<
             };
           };
         };
+      };
+      readonly public: {
+        readonly id: 'public';
+        readonly kind: 'postgres-schema';
+        readonly entries: { readonly table: {} };
       };
     };
     readonly storageHash: StorageHash;
@@ -711,7 +709,7 @@ type ContractBase = Omit<
                 readonly type: {
                   readonly kind: 'scalar';
                   readonly codecId: 'pg/enum@1';
-                  readonly typeParams: { readonly typeName: 'session_type' };
+                  readonly typeParams: { readonly typeName: 'charge_recup.session_type' };
                 };
               };
             };

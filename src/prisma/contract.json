@@ -219,7 +219,7 @@
                   "codecId": "pg/enum@1",
                   "kind": "scalar",
                   "typeParams": {
-                    "typeName": "session_type"
+                    "typeName": "charge_recup.session_type"
                   }
                 }
               }
@@ -275,6 +275,19 @@
     "namespaces": {
       "charge_recup": {
         "entries": {
+          "native_enum": {
+            "session_type": {
+              "kind": "postgres-enum",
+              "members": [
+                "MUSCU",
+                "TRAINING",
+                "COMBO",
+                "MATCH",
+                "OTHER"
+              ],
+              "typeName": "session_type"
+            }
+          },
           "table": {
             "daily_entries": {
               "columns": {
@@ -420,12 +433,12 @@
                   "dataType": "pg/enum",
                   "nullable": true,
                   "typeParams": {
-                    "typeName": "session_type"
+                    "typeName": "charge_recup.session_type"
                   },
                   "valueSet": {
                     "entityKind": "valueSet",
                     "entityName": "SessionType",
-                    "namespaceId": "public",
+                    "namespaceId": "charge_recup",
                     "plane": "storage"
                   }
                 }
@@ -478,27 +491,7 @@
                 }
               ]
             }
-          }
-        },
-        "id": "charge_recup",
-        "kind": "postgres-schema"
-      },
-      "public": {
-        "entries": {
-          "native_enum": {
-            "session_type": {
-              "kind": "postgres-enum",
-              "members": [
-                "MUSCU",
-                "TRAINING",
-                "COMBO",
-                "MATCH",
-                "OTHER"
-              ],
-              "typeName": "session_type"
-            }
           },
-          "table": {},
           "valueSet": {
             "SessionType": {
               "kind": "valueSet",
@@ -512,11 +505,18 @@
             }
           }
         },
+        "id": "charge_recup",
+        "kind": "postgres-schema"
+      },
+      "public": {
+        "entries": {
+          "table": {}
+        },
         "id": "public",
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "264a966bff3f655c5c673b4f0515889fdb0a21f40ce34c542d42deb50ee789ef"
+    "storageHash": "156c35de7d5ba6bd006b5583bef73b07f2b09905027c89631af3411478a1b2ea"
   },
   "execution": {
     "executionHash": "a25a721130cb4dac594a96cd5c51d0e8c21390a913daa775b21a6aeb70f67c16",
