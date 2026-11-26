@@ -12,7 +12,7 @@ export const instant = false
 
 export default async function StaffPage(props: { searchParams: Promise<{ day?: string }> }) {
   const searchParams = await props.searchParams
-  if (!isStaff()) redirect('/staff/login')
+  if (!(await isStaff())) redirect('/staff/login')
 
   const today = todayIn(TZ)
   let day = isYmd(searchParams.day) ? searchParams.day : today
