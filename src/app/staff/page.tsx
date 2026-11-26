@@ -4,6 +4,7 @@ import { isStaff } from '@/lib/auth'
 import { TZ } from '@/lib/config'
 import { isYmd, todayIn } from '@/lib/dates'
 import { loadStaffPayload } from '@/lib/staff-data'
+import { connection } from 'next/server'
 
 // @next-codemod-ignore Cache Components adoption: this segment temporarily allows blocking.
 // Remove this opt-out after verifying the segment passes validation without it.
@@ -12,6 +13,7 @@ export const instant = false
 
 export default async function StaffPage(props: { searchParams: Promise<{ day?: string }> }) {
   const searchParams = await props.searchParams
+  await connection()
   if (!(await isStaff())) redirect('/staff/login')
 
   const today = todayIn(TZ)
