@@ -1,8 +1,8 @@
-import { prisma } from './db';
-import { dbToYmd, ymdToDb } from './dates';
-import { buildStaffPayload } from './metrics';
-import { TYPE_FROM_DB } from './session-type';
-import type { EntryItem, StaffPayload } from './types';
+import { db } from '@/prisma/db'
+import { dbToYmd, ymdToDb } from './dates'
+import { buildStaffPayload } from './metrics'
+import { TYPE_FROM_DB } from './session-type'
+import type { EntryItem, StaffPayload } from './types'
 
 /**
  * Lit toutes les réponses jusqu'à `viewDay` et calcule le tableau du staff.
@@ -10,16 +10,18 @@ import type { EntryItem, StaffPayload } from './types';
  * vient de toutes les réponses : on lit donc tout ce qui précède le jour affiché.
  */
 export async function loadStaffPayload(viewDay: string, today: string): Promise<StaffPayload> {
-  const rows = await prisma.dailyEntry.findMany({
-    where: { entryDate: { lte: ymdToDb(viewDay) } },
-    include: { sessions: { orderBy: { position: 'asc' } } },
-    orderBy: [{ entryDate: 'asc' }, { createdAt: 'asc' }],
-  });
+  const rows = await db.orm.charge_recup.DailyEntry.where((m, { fns }) =>
+    fns.lte(m.entryDate, viewDay),
+  )
+    .orderBy([(e) => e.entryDate.asc(), (e) => e.createdAt.asc()])
+    .include('sessions', (sessions) => sessions.orderBy((s) => s.position.asc()))
+    .all()
+    .toArray()
 
   const items: EntryItem[] = rows.map((r) => ({
     id: r.id,
     name: r.playerName,
-    date: dbToYmd(r.entryDate),
+    date: r.entryDate,
     entry: {
       sleep: r.sleep,
       fatigue: r.fatigue,
@@ -34,7 +36,7 @@ export async function loadStaffPayload(viewDay: string, today: string): Promise<
         min: s.minutes,
       })),
     },
-  }));
+  }))
 
-  return buildStaffPayload(items, viewDay, today);
+  return buildStaffPayload(items, viewDay, today)
 }

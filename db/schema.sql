@@ -1,13 +1,10 @@
--- Schéma PostgreSQL de Charge & Récup.
--- Équivalent exact de prisma/schema.prisma, avec en plus des contraintes CHECK
--- qui protègent les données même si elles sont écrites hors de l'application.
---
--- Usage possible :  psql "$DATABASE_URL" -f db/schema.sql
--- Ou laisser Prisma créer les tables :  npx prisma db push  (sans les CHECK).
+-- 1. Ensure the schema exists
+CREATE SCHEMA IF NOT EXISTS "charge-recup";
 
-CREATE TYPE "SessionType" AS ENUM ('MUSCU', 'TRAINING', 'COMBO', 'MATCH', 'OTHER');
+-- 2. Quote the schema name and keep case consistent
+CREATE TYPE "charge-recup".session_type AS ENUM ('MUSCU', 'TRAINING', 'COMBO', 'MATCH', 'OTHER');
 
-CREATE TABLE daily_entries (
+CREATE TABLE "charge-recup".daily_entries (
   id           TEXT          PRIMARY KEY,
   player_name  VARCHAR(40)   NOT NULL,
   name_key     VARCHAR(60)   NOT NULL,
@@ -27,25 +24,18 @@ CREATE TABLE daily_entries (
   CONSTRAINT daily_entries_name_key_entry_date_key UNIQUE (name_key, entry_date)
 );
 
-CREATE INDEX daily_entries_entry_date_idx ON daily_entries (entry_date);
+-- 3. Include the schema prefix on the table being indexed
+CREATE INDEX daily_entries_entry_date_idx ON "charge-recup".daily_entries (entry_date);
 
-CREATE TABLE training_sessions (
-  id        TEXT           PRIMARY KEY,
-  entry_id  TEXT           NOT NULL REFERENCES daily_entries (id) ON DELETE CASCADE ON UPDATE CASCADE,
-  position  SMALLINT       NOT NULL CHECK (position IN (0, 1)),
-  type      "SessionType",
-  rpe       SMALLINT       NOT NULL CHECK (rpe     BETWEEN 0 AND 10),
-  minutes   SMALLINT       NOT NULL CHECK (minutes BETWEEN 1 AND 300),
+CREATE TABLE "charge-recup".training_sessions (
+  id        TEXT                          PRIMARY KEY,
+  -- 4. Reference the table inside the "charge-recup" schema
+  entry_id  TEXT                          NOT NULL REFERENCES "charge-recup".daily_entries (id) ON DELETE CASCADE ON UPDATE CASCADE,
+  position  SMALLINT                      NOT NULL CHECK (position IN (0, 1)),
+  -- 5. Reference the enum type inside the "charge-recup" schema
+  type      "charge-recup".session_type,
+  rpe       SMALLINT                      NOT NULL CHECK (rpe     BETWEEN 0 AND 10),
+  minutes   SMALLINT                      NOT NULL CHECK (minutes BETWEEN 1 AND 300),
 
   CONSTRAINT training_sessions_entry_id_position_key UNIQUE (entry_id, position)
 );
-
--- Charge d'une journée = somme de (rpe * minutes) sur ses séances ; repos = 0.
--- Exemple de requête : charge par joueur et par jour.
---
---   SELECT e.player_name, e.entry_date,
---          CASE WHEN e.is_rest THEN 0 ELSE COALESCE(SUM(s.rpe * s.minutes), 0) END AS load_of_previous_day
---   FROM daily_entries e
---   LEFT JOIN training_sessions s ON s.entry_id = e.id
---   GROUP BY e.id
---   ORDER BY e.entry_date DESC, e.player_name;

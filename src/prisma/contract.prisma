@@ -1,0 +1,46 @@
+// use prisma-8
+
+native_enum SessionType {
+  MUSCU     = "MUSCU"
+  TRAINING  = "TRAINING"
+  COMBO     = "COMBO"
+  MATCH     = "MATCH"
+  OTHER     = "OTHER"
+
+  @@map("session_type")
+}
+
+namespace charge_recup {
+  model DailyEntry {
+    id         String            @id
+    playerName Varchar(40)       @map("player_name")
+    nameKey    Varchar(60)       @map("name_key")
+    entryDate  DateString        @map("entry_date")
+    sleep      Int2
+    fatigue    Int2
+    soreness   Int2
+    stress     Int2
+    mood       Int2
+    isRest     Boolean           @default(false) @map("is_rest")
+    createdAt  TimestampJsDate(3) @default(now()) @map("created_at")
+    updatedAt  TimestampJsDate(3) @default(now()) @onUpdate(now()) @map("updated_at")
+    sessions   TrainingSession[]
+
+    @@unique([nameKey, entryDate], map: "daily_entries_name_key_entry_date_key")
+    @@index([entryDate], map: "daily_entries_entry_date_idx")
+    @@map("daily_entries")
+  }
+
+  model TrainingSession {
+    id       String                  @id
+    entryId  String                  @map("entry_id")
+    position Int2
+    type     pg.enum(SessionType)?
+    rpe      Int2
+    minutes  Int2
+    entry    DailyEntry              @relation(fields: [entryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    @@unique([entryId, position], map: "training_sessions_entry_id_position_key")
+    @@map("training_sessions")
+  }
+}
